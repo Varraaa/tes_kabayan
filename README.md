@@ -1,58 +1,154 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Manajemen Stok
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi web untuk mengelola persediaan barang pada beberapa gudang. Aplikasi ini mendukung pencatatan barang masuk, penjualan, transfer stok antar-gudang, pembatalan transaksi, serta laporan transaksi dalam format CSV.
 
-## About Laravel
+## Fitur
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Dashboard ringkasan persediaan dan aktivitas transaksi.
+- Manajemen master gudang, barang, dan pelanggan.
+- Transaksi barang masuk.
+- Transaksi penjualan kepada pelanggan.
+- Transfer barang antar-gudang.
+- Pembatalan transaksi.
+- Laporan transaksi dan ekspor CSV.
+- Autentikasi dengan pembatasan akses berdasarkan role.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Role Pengguna
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Role | Akses |
+| --- | --- |
+| Admin | Dashboard, transaksi, master gudang, barang, pelanggan, dan laporan |
+| Operator | Dashboard dan transaksi |
 
-## Learning Laravel
+## Teknologi
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- PHP `^8.3`
+- Laravel `^13.17`
+- SQLite sebagai database default
+- Vite `^8.0`
+- Tailwind CSS `^4.0`
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Persyaratan
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+Pastikan perangkat sudah memiliki:
 
-## Agentic Development
+- PHP 8.3 atau lebih baru
+- Composer
+- Node.js dan npm
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Instalasi
+
+1. Clone repository lalu masuk ke folder proyek.
+
+2. Install dependency PHP dan JavaScript:
+
+	```bash
+	composer install
+	npm install
+	```
+
+3. Buat file environment dan application key:
+
+	```bash
+	copy .env.example .env
+	php artisan key:generate
+	```
+
+	Pada macOS/Linux, gunakan `cp .env.example .env` sebagai pengganti perintah `copy`.
+
+4. Konfigurasi database pada `.env`. Konfigurasi bawaan menggunakan SQLite:
+
+	```env
+	DB_CONNECTION=sqlite
+	```
+
+	Buat file database jika belum tersedia:
+
+	```bash
+	type nul > database\database.sqlite
+	```
+
+	Pada macOS/Linux, gunakan `touch database/database.sqlite`.
+
+5. Jalankan migration dan seeder:
+
+	```bash
+	php artisan migrate --seed
+	```
+
+6. Build asset frontend:
+
+	```bash
+	npm run build
+	```
+
+## Menjalankan Aplikasi
+
+Jalankan server Laravel:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Buka [http://localhost:8000](http://localhost:8000) di browser.
 
-## Contributing
+Untuk pengembangan frontend dengan Vite, jalankan pada terminal terpisah:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+npm run dev
+```
 
-## Code of Conduct
+Alternatifnya, perintah berikut menjalankan alur development yang disediakan proyek:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+composer run dev
+```
 
-## Security Vulnerabilities
+## Akun Demo
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Seeder menyediakan akun berikut:
 
-## License
+| Role | Email | Password |
+| --- | --- | --- |
+| Admin | `admin@sinar.com` | `password` |
+| Operator | `operator@sinar.com` | `password` |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Ganti password akun demo sebelum digunakan pada lingkungan produksi.
+
+## Struktur Data Utama
+
+- `users`: pengguna dan role akses.
+- `gudang`: daftar lokasi penyimpanan.
+- `barang`: SKU, kategori, satuan, serta harga pokok dan harga jual.
+- `pelanggan`: data pelanggan penjualan.
+- `transaksi`: header transaksi masuk, jual, atau transfer.
+- `transaksi_detail`: rincian barang pada setiap transaksi.
+- `riwayat_stok`: histori perubahan stok per gudang dan barang.
+
+## Pengujian
+
+Jalankan test suite dengan:
+
+```bash
+php artisan test
+```
+
+Atau gunakan script Composer:
+
+```bash
+composer run test
+```
+
+## Perintah Berguna
+
+```bash
+php artisan route:list
+php artisan migrate:fresh --seed
+php artisan config:clear
+```
+
+`migrate:fresh --seed` akan menghapus seluruh tabel dan data yang ada, lalu membuatnya kembali. Gunakan hanya pada lingkungan pengembangan atau pengujian.
+
+## Lisensi
+
+Proyek ini menggunakan lisensi MIT.
