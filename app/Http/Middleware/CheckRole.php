@@ -16,12 +16,12 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        // 1. Cek apakah user sudah login
+        //cek apakah user sudah login
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        // 2. Cek apakah role user yang sedang login ada di dalam daftar role yang diizinkan
+        //cek apakah role user yang sedang login ada di dalam daftar (admin / operator)
         if (!in_array(Auth::user()->role, $roles)) {
             abort(403, 'Akses Ditolak: Anda tidak memiliki izin untuk membuka halaman ini.');
         }
