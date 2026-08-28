@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Barang extends Model
 {
     protected $table = 'barang';
-    
+
     protected $fillable = [
+        'sku',
         'nama_barang',
         'kategori',
         'satuan',

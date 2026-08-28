@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Transaksi extends Model
 {
     protected $table = 'transaksi';
-    
+
     protected $fillable = [
         'no_referensi',
         'jenis',
@@ -15,7 +15,7 @@ class Transaksi extends Model
         'gudang_tujuan_id',
         'pelanggan_id',
         'tanggal',
-        'total bayar',
+        'total_bayar',
         'status',
         'catatan',
         'user_id',
