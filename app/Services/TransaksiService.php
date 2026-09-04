@@ -35,14 +35,19 @@ class TransaksiService
     {
         return DB::transaction(function () use ($data) {
             $noRef = 'IN-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
-            $total = collect($data['items'])->sum(fn($i) => $i['jumlah'] * $i['harga']);
+
+            // 1. Hitung total nominal penerimaan barang
+            $total = 0;
+            foreach ($data['items'] as $item) {
+                $total += (float)$item['jumlah'] * (float)$item['harga'];
+            }
 
             $trx = Transaksi::create([
                 'no_referensi'     => $noRef,
                 'jenis'            => 'masuk',
                 'gudang_tujuan_id' => $data['gudang_id'],
                 'tanggal'          => $data['tanggal'],
-                'total_bayar'      => $total,
+                'total_bayar'      => $total, // <-- Tersimpan di database
                 'status'           => 'selesai',
                 'catatan'          => $data['catatan'] ?? null,
                 'user_id'          => Auth::id(),
@@ -54,44 +59,12 @@ class TransaksiService
                     'barang_id'    => $item['barang_id'],
                     'jumlah'       => $item['jumlah'],
                     'harga_satuan' => $item['harga'],
-                    'subtotal'     => $item['jumlah'] * $item['harga'],
+                    'subtotal'     => (float)$item['jumlah'] * (float)$item['harga'],
                 ]);
+
                 self::catatMutasi($trx->id, $data['gudang_id'], $item['barang_id'], 'masuk', $item['jumlah'], "Penerimaan: {$noRef}");
             }
-            return $trx;
-        });
-    }
 
-    public static function simpanJual(array $data)
-    {
-        return DB::transaction(function () use ($data) {
-            $barangMap = Barang::whereIn('id', collect($data['items'])->pluck('barang_id'))->get()->keyBy('id');
-            $noRef = 'POS-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
-            $total = collect($data['items'])->sum(fn($i) => $i['jumlah'] * $barangMap[$i['barang_id']]->harga_jual);
-
-            $trx = Transaksi::create([
-                'no_referensi'   => $noRef,
-                'jenis'          => 'jual',
-                'gudang_asal_id' => $data['gudang_id'],
-                'pelanggan_id'   => $data['pelanggan_id'] ?? null,
-                'tanggal'        => $data['tanggal'],
-                'total_bayar'    => $total,
-                'status'         => 'selesai',
-                'catatan'        => $data['catatan'] ?? null,
-                'user_id'        => Auth::id(),
-            ]);
-
-            foreach ($data['items'] as $item) {
-                $harga = $barangMap[$item['barang_id']]->harga_jual;
-                TransaksiDetail::create([
-                    'transaksi_id' => $trx->id,
-                    'barang_id'    => $item['barang_id'],
-                    'jumlah'       => $item['jumlah'],
-                    'harga_satuan' => $harga,
-                    'subtotal'     => $item['jumlah'] * $harga,
-                ]);
-                self::catatMutasi($trx->id, $data['gudang_id'], $item['barang_id'], 'keluar', $item['jumlah'], "Penjualan: {$noRef}");
-            }
             return $trx;
         });
     }
@@ -100,29 +73,45 @@ class TransaksiService
     {
         return DB::transaction(function () use ($data) {
             $noRef = 'TRF-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
+
+            $barangIds = collect($data['items'])->pluck('barang_id')->toArray();
+            $barangMap = Barang::whereIn('id', $barangIds)->get()->keyBy('id');
+
+            // 2. Hitung total valuasi aset yang ditransfer (berdasarkan harga pokok/modal)
+            $total = 0;
+            foreach ($data['items'] as $item) {
+                $hargaPokok = $barangMap[$item['barang_id']]->harga_pokok ?? 0;
+                $total += (float)$item['jumlah'] * (float)$hargaPokok;
+            }
+
             $trx = Transaksi::create([
                 'no_referensi'     => $noRef,
                 'jenis'            => 'transfer',
                 'gudang_asal_id'   => $data['gudang_asal_id'],
                 'gudang_tujuan_id' => $data['gudang_tujuan_id'],
                 'tanggal'          => $data['tanggal'],
-                'total_bayar'      => 0,
+                'total_bayar'      => $total, // <-- Valuasi transfer tersimpan
                 'status'           => 'selesai',
                 'catatan'          => $data['catatan'] ?? null,
                 'user_id'          => Auth::id(),
             ]);
 
             foreach ($data['items'] as $item) {
+                $hargaPokok = $barangMap[$item['barang_id']]->harga_pokok ?? 0;
+
                 TransaksiDetail::create([
                     'transaksi_id' => $trx->id,
                     'barang_id'    => $item['barang_id'],
                     'jumlah'       => $item['jumlah'],
-                    'harga_satuan' => 0,
-                    'subtotal'     => 0,
+                    'harga_satuan' => $hargaPokok,
+                    'subtotal'     => (float)$item['jumlah'] * (float)$hargaPokok,
                 ]);
-                self::catatMutasi($trx->id, $data['gudang_asal_id'], $item['barang_id'], 'keluar', $item['jumlah'], "Transfer keluar ({$noRef})");
-                self::catatMutasi($trx->id, $data['gudang_tujuan_id'], $item['barang_id'], 'masuk', $item['jumlah'], "Transfer masuk ({$noRef})");
+
+                // Catat mutasi keluar di gudang asal & masuk di gudang tujuan
+                self::catatMutasi($trx->id, $data['gudang_asal_id'], $item['barang_id'], 'keluar', $item['jumlah'], "Transfer Keluar: {$noRef}");
+                self::catatMutasi($trx->id, $data['gudang_tujuan_id'], $item['barang_id'], 'masuk', $item['jumlah'], "Transfer Masuk: {$noRef}");
             }
+
             return $trx;
         });
     }
