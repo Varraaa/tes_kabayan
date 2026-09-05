@@ -295,7 +295,7 @@
                                                     </table>
                                                 </div>
 
-                                                <!-- Ringkasan Total Tagihan / Valuasi -->
+                                                <!-- Ringkasan Total Tagihan -->
                                                 <div
                                                     class="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
                                                     <span
