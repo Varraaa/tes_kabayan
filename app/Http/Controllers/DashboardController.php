@@ -25,19 +25,30 @@ class DashboardController extends Controller
 
         $transaksiHariIniCount = Transaksi::whereDate('tanggal', today())->count();
 
-        // 3. Daftar Barang dengan Stok Terendah
-        $stokTerendah = DB::table('barang')
-            ->leftJoin('riwayat_stok', function ($join) {
-                $join->on('barang.id', '=', 'riwayat_stok.barang_id')
-                    ->whereRaw('riwayat_stok.id = (SELECT MAX(id) FROM riwayat_stok WHERE riwayat_stok.barang_id = barang.id)');
+        // 3. Daftar Barang dengan Stok Terendah (Akumulasi akurat dari seluruh gudang aktif)
+        $gudangs = Gudang::where('status_aktif', 1)->get();
+        $stokTerendah = Barang::where('status_aktif', 1)
+            ->get()
+            ->map(function ($b) use ($gudangs) {
+                $totalStok = 0;
+                foreach ($gudangs as $g) {
+                    $totalStok += \App\Services\TransaksiService::getStok($g->id, $b->id);
+                }
+                return (object)[
+                    'id'          => $b->id,
+                    'sku'         => $b->sku,
+                    'nama_barang' => $b->nama_barang,
+                    'kategori'    => $b->kategori,
+                    'satuan'      => $b->satuan,
+                    'sisa_stok'   => $totalStok,
+                ];
             })
-            ->select('barang.id', 'barang.nama_barang', 'barang.sku', 'barang.satuan', 'barang.kategori', DB::raw('COALESCE(riwayat_stok.sisa_stok, 0) as sisa_stok'))
-            ->orderBy('sisa_stok', 'asc')
-            ->limit(5)
-            ->get();
+            ->sortBy('sisa_stok')
+            ->take(5)
+            ->values();
 
         // 4. Daftar Transaksi Terbaru
-        $transaksiTerbaru = Transaksi::with(['user', 'pelanggan', 'gudangAsal', 'gudangTujuan'])
+        $transaksiTerbaru = Transaksi::with(['user', 'pelanggan', 'gudangAsal', 'gudangTujuan', 'details.barang'])
             ->latest('tanggal')
             ->latest('id')
             ->limit(5)

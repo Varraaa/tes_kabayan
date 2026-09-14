@@ -57,6 +57,10 @@ class BarangController extends Controller
 
     public function destroy(Barang $barang)
     {
+        if ($barang->transaksiDetail()->exists() || $barang->riwayatStok()->exists()) {
+            return back()->with('error', "Barang '{$barang->nama_barang}' tidak dapat dihapus karena memiliki riwayat mutasi/transaksi. Anda dapat mengubah status produk menjadi Non-Aktif.");
+        }
+
         $barang->delete();
         return redirect()->route('barang.index')->with('success', 'Barang berhasil dihapus.');
     }

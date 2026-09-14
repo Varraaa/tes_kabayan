@@ -26,12 +26,14 @@ Route::middleware('auth')->group(function () {
 
         //transaksi
         Route::get('/transaksi', [TransaksiController::class, 'index'])->name('transaksi.index');
+        Route::get('/transaksi/stok-realtime', [TransaksiController::class, 'getStokRealtime'])->name('transaksi.stok.realtime');
         Route::get('/transaksi/masuk', [TransaksiController::class, 'createMasuk'])->name('transaksi.masuk');
         Route::post('/transaksi/masuk', [TransaksiController::class, 'storeMasuk'])->name('transaksi.masuk.store');
         Route::get('/transaksi/jual', [TransaksiController::class, 'createJual'])->name('transaksi.jual');
         Route::post('/transaksi/jual', [TransaksiController::class, 'storeJual'])->name('transaksi.jual.store');
         Route::get('/transaksi/transfer', [TransaksiController::class, 'createTransfer'])->name('transaksi.transfer');
         Route::post('/transaksi/transfer', [TransaksiController::class, 'storeTransfer'])->name('transaksi.transfer.store');
+        Route::get('/transaksi/{transaksi}/cetak-nota', [TransaksiController::class, 'cetakNota'])->name('transaksi.cetak');
         Route::post('/transaksi/{transaksi}/batal', [TransaksiController::class, 'batalkan'])->name('transaksi.batal');
     });
 

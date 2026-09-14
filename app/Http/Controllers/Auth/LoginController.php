@@ -26,7 +26,7 @@ class LoginController extends Controller
 
         if(Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended('/dashboard')->with('succes', 'Selamat datang kembali, ' . Auth::user()->name);
+            return redirect()->intended('/dashboard')->with('success', 'Selamat datang kembali, ' . Auth::user()->name);
         }
 
         return back()->withErrors(['email' => 'Email atau password salah.'])->onlyInput('email');
@@ -38,7 +38,6 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('succes', 'Anda telah berhasil login.');
-
+        return redirect()->route('login')->with('success', 'Anda telah berhasil keluar (logout).');
     }
 }

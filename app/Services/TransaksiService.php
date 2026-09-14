@@ -116,6 +116,79 @@ class TransaksiService
         });
     }
 
+    public static function simpanJual(array $data)
+    {
+        return DB::transaction(function () use ($data) {
+            $noRef = 'JL-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
+
+            $barangIds = collect($data['items'])->pluck('barang_id')->toArray();
+            $barangMap = Barang::whereIn('id', $barangIds)->get()->keyBy('id');
+
+            $total = 0;
+            foreach ($data['items'] as $item) {
+                $barang = $barangMap[$item['barang_id']] ?? null;
+                $harga = isset($item['harga']) && is_numeric($item['harga']) ? (float)$item['harga'] : (float)($barang->harga_jual ?? 0);
+                $total += (float)$item['jumlah'] * $harga;
+            }
+
+            $trx = Transaksi::create([
+                'no_referensi'     => $noRef,
+                'jenis'            => 'jual',
+                'gudang_asal_id'   => $data['gudang_id'],
+                'pelanggan_id'     => !empty($data['pelanggan_id']) ? $data['pelanggan_id'] : null,
+                'tanggal'          => $data['tanggal'],
+                'total_bayar'      => $total,
+                'status'           => 'selesai',
+                'catatan'          => $data['catatan'] ?? null,
+                'user_id'          => Auth::id(),
+            ]);
+
+            foreach ($data['items'] as $item) {
+                $barang = $barangMap[$item['barang_id']] ?? null;
+                $harga = isset($item['harga']) && is_numeric($item['harga']) ? (float)$item['harga'] : (float)($barang->harga_jual ?? 0);
+
+                TransaksiDetail::create([
+                    'transaksi_id' => $trx->id,
+                    'barang_id'    => $item['barang_id'],
+                    'jumlah'       => $item['jumlah'],
+                    'harga_satuan' => $harga,
+                    'subtotal'     => (float)$item['jumlah'] * $harga,
+                ]);
+
+                self::catatMutasi(
+                    $trx->id,
+                    $data['gudang_id'],
+                    $item['barang_id'],
+                    'keluar',
+                    $item['jumlah'],
+                    "Penjualan: {$noRef}"
+                );
+            }
+
+            return $trx;
+        });
+    }
+
+    public static function getStokByGudang($gudangId): array
+    {
+        $barangs = Barang::where('status_aktif', 1)->get();
+        $result = [];
+
+        foreach ($barangs as $b) {
+            $stok = self::getStok($gudangId, $b->id);
+            $result[$b->id] = [
+                'id' => $b->id,
+                'sku' => $b->sku,
+                'nama_barang' => $b->nama_barang,
+                'satuan' => $b->satuan,
+                'harga_jual' => (float)$b->harga_jual,
+                'stok' => $stok,
+            ];
+        }
+
+        return $result;
+    }
+
     public static function batalkanTrx(Transaksi $trx): void
     {
         DB::transaction(function () use ($trx) {

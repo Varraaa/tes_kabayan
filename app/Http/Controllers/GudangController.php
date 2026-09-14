@@ -53,7 +53,15 @@ class GudangController extends Controller
     
     public function destroy(Gudang $gudang)
     {
+        $hasTransactions = \App\Models\Transaksi::where('gudang_asal_id', $gudang->id)
+            ->orWhere('gudang_tujuan_id', $gudang->id)
+            ->exists();
+
+        if ($hasTransactions || $gudang->riwayatStok()->exists()) {
+            return back()->with('error', "Gudang '{$gudang->nama_gudang}' tidak dapat dihapus karena memiliki riwayat stok atau transaksi. Anda dapat menonaktifkan status gudang.");
+        }
+
         $gudang->delete();
-        return redirect()->route('gudang.index')->with('success', 'Gudang berhasil dihapus');
+        return redirect()->route('gudang.index')->with('success', 'Gudang berhasil dihapus.');
     }
 }

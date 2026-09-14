@@ -49,6 +49,11 @@ class PelangganController extends Controller
 
     public function destroy(Pelanggan $pelanggan)
     {
+        $hasTransactions = \App\Models\Transaksi::where('pelanggan_id', $pelanggan->id)->exists();
+        if ($hasTransactions) {
+            return back()->with('error', "Pelanggan '{$pelanggan->nama}' tidak dapat dihapus karena tercatat dalam transaksi penjualan.");
+        }
+
         $pelanggan->delete();
         return redirect()->route('pelanggan.index')->with('success', 'Pelanggan berhasil dihapus.');
     }
