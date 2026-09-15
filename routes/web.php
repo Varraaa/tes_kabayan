@@ -23,6 +23,7 @@ Route::middleware('auth')->group(function () {
     //akses admin dan operator
     Route::middleware('role:admin,operator')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard/realtime', [DashboardController::class, 'realtimeData'])->name('dashboard.realtime');
 
         //transaksi
         Route::get('/transaksi', [TransaksiController::class, 'index'])->name('transaksi.index');
@@ -33,7 +34,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/transaksi/jual', [TransaksiController::class, 'storeJual'])->name('transaksi.jual.store');
         Route::get('/transaksi/transfer', [TransaksiController::class, 'createTransfer'])->name('transaksi.transfer');
         Route::post('/transaksi/transfer', [TransaksiController::class, 'storeTransfer'])->name('transaksi.transfer.store');
-        Route::get('/transaksi/{transaksi}/cetak-nota', [TransaksiController::class, 'cetakNota'])->name('transaksi.cetak');
         Route::post('/transaksi/{transaksi}/batal', [TransaksiController::class, 'batalkan'])->name('transaksi.batal');
     });
 
@@ -45,5 +45,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
         Route::get('/laporan/export', [LaporanController::class, 'exportCsv'])->name('laporan.export');
+        Route::get('/laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
+        Route::get('/laporan/penjualan/export', [LaporanController::class, 'exportPenjualanCsv'])->name('laporan.penjualan.export');
     });
 });

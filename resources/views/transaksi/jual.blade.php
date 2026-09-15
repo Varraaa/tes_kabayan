@@ -20,68 +20,35 @@
                     </p>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
-                <a href="{{ route('transaksi.cetak', session('last_trx_id')) }}" target="_blank"
-                   class="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H7a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    Cetak Struk Pembayaran
-                </a>
-            </div>
         </div>
     @endif
 
     <form action="{{ route('transaksi.jual.store') }}" method="POST" id="posForm" onsubmit="return validateCheckout()">
         @csrf
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Panel Kiri: Input Item Barang & Barcode Scanner -->
+            <!-- Panel Kiri: Input Item Barang -->
             <div class="lg:col-span-2 space-y-4">
-                <!-- Barcode & Pencarian Cepat Produk -->
-                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <div class="relative w-full sm:w-80">
-                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none text-gray-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                            </svg>
+                <!-- Tabel Item Keranjang Belanja -->
+                <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-base font-bold text-gray-900 dark:text-white">Daftar Item Belanja</h2>
+                            <span id="badgeItemCount" class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-semibold dark:bg-blue-900 dark:text-blue-300">1 Item</span>
                         </div>
-                        <input type="text" id="barcodeScanner" placeholder="Scan Barcode / Ketik SKU..."
-                               class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-9 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400">
-                    </div>
-                    <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                        <span class="text-xs text-gray-500 dark:text-gray-400">Tekan <kbd class="px-1.5 py-0.5 text-[10px] font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded dark:bg-gray-600 dark:text-gray-100">Enter</kbd> untuk cari</span>
                         <button type="button" onclick="tambahBaris()"
                                 class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-xs px-3.5 py-2 flex items-center gap-1.5 dark:bg-blue-600 dark:hover:bg-blue-700 transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                             </svg>
-                            Tambah Baris
+                            Tambah Baris Barang
                         </button>
-                    </div>
-                </div>
-
-                <!-- Tabel Item Keranjang Belanja -->
-                <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-                    <div class="flex justify-between items-center mb-3">
-                        <h2 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                            <span>Daftar Item Belanja</span>
-                            <span id="badgeItemCount" class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-semibold dark:bg-blue-900 dark:text-blue-300">1 Item</span>
-                        </h2>
-                        <!-- Status Sinkronisasi Real-Time -->
-                        <div class="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-                            <span class="relative flex h-2 w-2">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                            </span>
-                            Stok Terhubung Real-Time
-                        </div>
                     </div>
 
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400" id="tabelItems">
                             <thead class="text-[11px] text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
                                 <tr>
-                                    <th class="px-3 py-2.5">Produk & Stok Tersedia</th>
+                                    <th class="px-3 py-2.5">Pilih Produk</th>
                                     <th class="px-3 py-2.5 w-32">Harga Satuan</th>
                                     <th class="px-3 py-2.5 w-24">Jumlah</th>
                                     <th class="px-3 py-2.5 w-36 text-right">Subtotal</th>
@@ -140,7 +107,7 @@
                 </div>
             </div>
 
-            <!-- Panel Kanan: Parameter Checkout & Kalkulator Kasir -->
+            <!-- Panel Kanan: Parameter Checkout & Pembayaran Kasir -->
             <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 h-fit space-y-4">
                 <h2 class="text-base font-bold text-gray-900 dark:text-white border-b pb-3 dark:border-gray-700 flex items-center justify-between">
                     <span>Kasir & Pembayaran</span>
@@ -163,18 +130,19 @@
                     <span class="text-[11px] text-gray-500 mt-1 block">Stok barang akan otomatis dipotong dari gudang ini.</span>
                 </div>
 
-                <!-- Pelanggan -->
+                <!-- Pelanggan / Tujuan Kirim -->
                 <div>
                     <label class="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                        Pelanggan (Opsional)
+                        Pelanggan / Tujuan Kirim
                     </label>
                     <select name="pelanggan_id"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <option value="">-- Umum / Non-Member --</option>
+                        <option value="">-- Pelanggan Umum --</option>
                         @foreach ($pelanggan as $p)
-                            <option value="{{ $p->id }}">{{ $p->nama }} ({{ $p->no_hp ?? '-' }})</option>
+                            <option value="{{ $p->id }}">{{ $p->nama }} {{ $p->no_hp ? '('.$p->no_hp.')' : '' }} {{ $p->alamat ? ' - ' . Str::limit($p->alamat, 30) : '' }}</option>
                         @endforeach
                     </select>
+                    <span class="text-[11px] text-gray-500 mt-1 block">Pilih pelanggan untuk pengiriman barang partai besar / grosir.</span>
                 </div>
 
                 <!-- Tanggal Transaksi -->
@@ -195,32 +163,23 @@
                               class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
                 </div>
 
-                <!-- Grand Total & Kalkulator Kembalian -->
+                <!-- Grand Total & Input Pembayaran Manual -->
                 <div class="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
                     <div class="flex justify-between items-baseline">
                         <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Total Tagihan:</span>
                         <span class="text-2xl font-black text-blue-700 dark:text-blue-400 font-mono" id="grandTotalText">Rp 0</span>
                     </div>
 
-                    <!-- Input Nominal Pembayaran -->
+                    <!-- Input Pembayaran Manual -->
                     <div>
-                        <label class="block mb-1 text-xs font-semibold text-gray-700 dark:text-gray-300">
+                        <label class="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
                             Uang Diterima (Rp):
                         </label>
-                        <input type="number" id="uangDiterima" name="nominal_bayar" min="0" placeholder="0" oninput="hitungKembalian()"
-                               class="bg-gray-50 border border-gray-300 text-gray-900 text-base font-mono font-bold rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <input type="number" id="uangDiterima" name="nominal_bayar" min="0" placeholder="Ketik nominal uang yang dibayar..." oninput="hitungKembalian()"
+                               class="bg-gray-50 border border-gray-300 text-gray-900 text-base font-mono font-bold rounded-lg block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     </div>
 
-                    <!-- Shortcut Tombol Uang Cepat -->
-                    <div class="flex flex-wrap gap-1.5">
-                        <button type="button" onclick="setUangPas()" class="px-2 py-1 text-[11px] font-medium bg-gray-200 hover:bg-gray-300 rounded text-gray-800 dark:bg-gray-700 dark:text-gray-200">Uang Pas</button>
-                        <button type="button" onclick="quickCash(20000)" class="px-2 py-1 text-[11px] font-medium bg-gray-200 hover:bg-gray-300 rounded text-gray-800 dark:bg-gray-700 dark:text-gray-200">20k</button>
-                        <button type="button" onclick="quickCash(50000)" class="px-2 py-1 text-[11px] font-medium bg-gray-200 hover:bg-gray-300 rounded text-gray-800 dark:bg-gray-700 dark:text-gray-200">50k</button>
-                        <button type="button" onclick="quickCash(100000)" class="px-2 py-1 text-[11px] font-medium bg-gray-200 hover:bg-gray-300 rounded text-gray-800 dark:bg-gray-700 dark:text-gray-200">100k</button>
-                        <button type="button" onclick="quickCash(500000)" class="px-2 py-1 text-[11px] font-medium bg-gray-200 hover:bg-gray-300 rounded text-gray-800 dark:bg-gray-700 dark:text-gray-200">500k</button>
-                    </div>
-
-                    <!-- Hasil Kembalian -->
+                    <!-- Hasil Kembalian Otomatis -->
                     <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 flex justify-between items-center">
                         <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">Kembalian:</span>
                         <span id="kembalianText" class="text-base font-bold font-mono text-gray-900 dark:text-white">Rp 0</span>
@@ -369,16 +328,6 @@
             }
         }
 
-        function setUangPas() {
-            document.getElementById('uangDiterima').value = currentGrandTotal;
-            hitungKembalian();
-        }
-
-        function quickCash(amount) {
-            document.getElementById('uangDiterima').value = amount;
-            hitungKembalian();
-        }
-
         function tambahBaris() {
             const container = document.getElementById('itemContainer');
             const firstRow = container.querySelector('.item-row');
@@ -417,49 +366,6 @@
             document.getElementById('badgeItemCount').innerText = `${count} Item`;
         }
 
-        // Barcode scanner / SKU finder
-        document.getElementById('barcodeScanner').addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const code = this.value.trim().toLowerCase();
-                if (!code) return;
-
-                let foundId = null;
-                const dummySelect = document.querySelector('.barang-select');
-                for (let opt of dummySelect.options) {
-                    if (opt.value && (opt.dataset.sku?.toLowerCase() === code || opt.dataset.nama?.toLowerCase().includes(code))) {
-                        foundId = opt.value;
-                        break;
-                    }
-                }
-
-                if (!foundId) {
-                    alert(`Produk dengan SKU/Barcode "${this.value}" tidak ditemukan.`);
-                    return;
-                }
-
-                // Cari apakah ada baris kosong
-                let targetRow = null;
-                document.querySelectorAll('.item-row').forEach(row => {
-                    const sel = row.querySelector('.barang-select');
-                    if (!sel.value && !targetRow) {
-                        targetRow = row;
-                    }
-                });
-
-                if (!targetRow) {
-                    tambahBaris();
-                    const allRows = document.querySelectorAll('.item-row');
-                    targetRow = allRows[allRows.length - 1];
-                }
-
-                const sel = targetRow.querySelector('.barang-select');
-                sel.value = foundId;
-                handleProductChange(sel);
-                this.value = '';
-            }
-        });
-
         function validateCheckout() {
             if (currentGrandTotal <= 0) {
                 alert('Total belanja masih Rp 0. Silakan pilih minimal 1 barang.');
@@ -491,7 +397,6 @@
             return valid;
         }
 
-        // Inisialisasi awal saat halaman dimuat
         document.addEventListener('DOMContentLoaded', () => {
             fetchRealtimeStock();
         });

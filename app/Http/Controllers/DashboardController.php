@@ -6,63 +6,133 @@ use App\Models\Barang;
 use App\Models\Gudang;
 use App\Models\Pelanggan;
 use App\Models\Transaksi;
-use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    /**
+     * Mengambil data dashboard yang terfokus HARI INI (real-time).
+     */
+    private function getDashboardData(?string $selectedGudangId)
     {
-        // 1. Ringkasan Data Master
+        $today = Carbon::today();
+
+        // 1. Data Master
         $totalBarang = Barang::count();
         $totalGudang = Gudang::count();
         $totalPelanggan = Pelanggan::count();
 
-        // 2. Data Penjualan & Transaksi Hari Ini
-        $penjualanHariIni = Transaksi::where('jenis', 'jual')
-            ->where('status', 'selesai')
-            ->whereDate('tanggal', today())
-            ->sum('total_bayar');
+        // 2. Base Query Transaksi KHUSUS HARI INI
+        $baseHariIni = Transaksi::whereDate('tanggal', $today);
 
-        $transaksiHariIniCount = Transaksi::whereDate('tanggal', today())->count();
+        if ($selectedGudangId) {
+            $baseHariIni->where(function ($q) use ($selectedGudangId) {
+                $q->where('gudang_asal_id', $selectedGudangId)
+                  ->orWhere('gudang_tujuan_id', $selectedGudangId);
+            });
+        }
 
-        // 3. Daftar Barang dengan Stok Terendah (Akumulasi akurat dari seluruh gudang aktif)
-        $gudangs = Gudang::where('status_aktif', 1)->get();
-        $stokTerendah = Barang::where('status_aktif', 1)
-            ->get()
-            ->map(function ($b) use ($gudangs) {
-                $totalStok = 0;
-                foreach ($gudangs as $g) {
-                    $totalStok += \App\Services\TransaksiService::getStok($g->id, $b->id);
-                }
-                return (object)[
-                    'id'          => $b->id,
-                    'sku'         => $b->sku,
-                    'nama_barang' => $b->nama_barang,
-                    'kategori'    => $b->kategori,
-                    'satuan'      => $b->satuan,
-                    'sisa_stok'   => $totalStok,
-                ];
-            })
-            ->sortBy('sisa_stok')
-            ->take(5)
-            ->values();
+        // Penjualan Hari Ini (hanya transaksi 'jual' dengan status 'selesai')
+        $penjualanHariIniQuery = (clone $baseHariIni)
+            ->where('jenis', 'jual')
+            ->where('status', 'selesai');
 
-        // 4. Daftar Transaksi Terbaru
-        $transaksiTerbaru = Transaksi::with(['user', 'pelanggan', 'gudangAsal', 'gudangTujuan', 'details.barang'])
-            ->latest('tanggal')
+        if ($selectedGudangId) {
+            $penjualanHariIniQuery->where('gudang_asal_id', $selectedGudangId);
+        }
+
+        $penjualanHariIni = (float) $penjualanHariIniQuery->sum('total_bayar');
+
+        // Total transaksi hari ini & rincian per tipe
+        $transaksiHariIniCount = (clone $baseHariIni)->count();
+        $penjualanHariIniCount = (clone $baseHariIni)->where('jenis', 'jual')->where('status', 'selesai')->count();
+        $masukHariIniCount     = (clone $baseHariIni)->where('jenis', 'masuk')->where('status', 'selesai')->count();
+        $transferHariIniCount  = (clone $baseHariIni)->where('jenis', 'transfer')->where('status', 'selesai')->count();
+
+        // Riwayat Transaksi Hari Ini (Terbaru hari ini)
+        $transaksiTerbaru = (clone $baseHariIni)
+            ->with(['user', 'pelanggan', 'gudangAsal', 'gudangTujuan', 'details.barang'])
             ->latest('id')
-            ->limit(5)
+            ->limit(25)
             ->get();
 
-        return view('dashboard', compact(
-            'totalBarang',
-            'totalGudang',
-            'totalPelanggan',
-            'penjualanHariIni',
-            'transaksiHariIniCount',
-            'stokTerendah',
-            'transaksiTerbaru'
-        ));
+        return [
+            'totalBarang'           => $totalBarang,
+            'totalGudang'           => $totalGudang,
+            'totalPelanggan'        => $totalPelanggan,
+            'penjualanHariIni'      => $penjualanHariIni,
+            'transaksiHariIniCount' => $transaksiHariIniCount,
+            'penjualanHariIniCount' => $penjualanHariIniCount,
+            'masukHariIniCount'     => $masukHariIniCount,
+            'transferHariIniCount'  => $transferHariIniCount,
+            'transaksiTerbaru'      => $transaksiTerbaru,
+        ];
+    }
+
+    public function index(Request $request)
+    {
+        $gudangList = Gudang::where('status_aktif', 1)->get();
+        $selectedGudangId = $request->query('gudang_id');
+
+        $data = $this->getDashboardData($selectedGudangId);
+
+        $selectedGudangName = 'Semua Gudang (Konsolidasi)';
+        if ($selectedGudangId) {
+            $selectedGudang = $gudangList->firstWhere('id', $selectedGudangId);
+            if ($selectedGudang) {
+                $selectedGudangName = $selectedGudang->nama_gudang;
+            }
+        }
+
+        return view('dashboard', array_merge($data, [
+            'gudangList'         => $gudangList,
+            'selectedGudangId'   => $selectedGudangId,
+            'selectedGudangName' => $selectedGudangName,
+        ]));
+    }
+
+    /**
+     * Endpoint API JSON untuk pembaruan data real-time via polling.
+     */
+    public function realtimeData(Request $request)
+    {
+        $selectedGudangId = $request->query('gudang_id');
+        $data = $this->getDashboardData($selectedGudangId);
+
+        $transaksiFormatted = $data['transaksiTerbaru']->map(function ($trx) {
+            $gudangInfo = '-';
+            if ($trx->jenis === 'jual') {
+                $gudangInfo = 'Dari: ' . ($trx->gudangAsal->nama_gudang ?? '-');
+            } elseif ($trx->jenis === 'masuk') {
+                $gudangInfo = 'Ke: ' . ($trx->gudangTujuan->nama_gudang ?? '-');
+            } else {
+                $gudangInfo = ($trx->gudangAsal->nama_gudang ?? '-') . ' → ' . ($trx->gudangTujuan->nama_gudang ?? '-');
+            }
+
+            return [
+                'id'                    => $trx->id,
+                'no_referensi'          => $trx->no_referensi,
+                'jam'                   => $trx->created_at ? $trx->created_at->format('H:i:s') : date('H:i:s', strtotime($trx->tanggal)),
+                'jenis'                 => $trx->jenis,
+                'gudang_info'           => $gudangInfo,
+                'pihak'                 => $trx->pelanggan->nama ?? ($trx->user->name ?? '-'),
+                'total_bayar'           => (float) $trx->total_bayar,
+                'total_bayar_formatted' => $trx->total_bayar > 0 ? 'Rp ' . number_format($trx->total_bayar, 0, ',', '.') : '-',
+                'status'                => $trx->status,
+            ];
+        });
+
+        return response()->json([
+            'status'                      => 'success',
+            'timestamp'                   => now()->format('H:i:s'),
+            'penjualan_hari_ini'          => $data['penjualanHariIni'],
+            'penjualan_hari_ini_formatted'=> 'Rp ' . number_format($data['penjualanHariIni'], 0, ',', '.'),
+            'transaksi_hari_ini_count'    => $data['transaksiHariIniCount'],
+            'penjualan_hari_ini_count'    => $data['penjualanHariIniCount'],
+            'masuk_hari_ini_count'        => $data['masukHariIniCount'],
+            'transfer_hari_ini_count'     => $data['transferHariIniCount'],
+            'transaksi_terbaru'           => $transaksiFormatted,
+        ]);
     }
 }
-

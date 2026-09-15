@@ -152,10 +152,4 @@ class TransaksiController extends Controller
         TransaksiService::batalkanTrx($transaksi);
         return back()->with('success', "Transaksi {$transaksi->no_referensi} berhasil dibatalkan dan seluruh stok telah dikembalikan ke kondisi semula.");
     }
-
-    public function cetakNota(Transaksi $transaksi)
-    {
-        $transaksi->load(['details.barang', 'gudangAsal', 'gudangTujuan', 'pelanggan', 'user']);
-        return view('transaksi.nota', compact('transaksi'));
-    }
 }
