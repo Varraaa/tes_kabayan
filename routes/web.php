@@ -45,7 +45,14 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
         Route::get('/laporan/export', [LaporanController::class, 'exportCsv'])->name('laporan.export');
-        Route::get('/laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
-        Route::get('/laporan/penjualan/export', [LaporanController::class, 'exportPenjualanCsv'])->name('laporan.penjualan.export');
+        Route::get('/laporan/penjualan', function () {
+            return redirect()->route('laporan.index', array_merge(request()->query(), ['tab' => 'penjualan']));
+        })->name('laporan.penjualan');
+        Route::get('/laporan/masuk', function () {
+            return redirect()->route('laporan.index', array_merge(request()->query(), ['tab' => 'masuk']));
+        })->name('laporan.masuk');
+        Route::get('/laporan/stok', function () {
+            return redirect()->route('laporan.index', array_merge(request()->query(), ['tab' => 'stok']));
+        })->name('laporan.stok');
     });
 });

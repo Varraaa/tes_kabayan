@@ -46,6 +46,60 @@
 
     <!-- 2. Ringkasan Kartu Statistik Aktivitas Hari Ini (Real-Time) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Total Barang -->
+        <div class="p-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Barang</span>
+                <span class="p-1.5 bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 rounded-lg">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                </span>
+            </div>
+            <div class="text-2xl font-black text-gray-900 dark:text-white mt-2 font-mono">
+                {{ number_format($totalBarang, 0, ',', '.') }}
+            </div>
+            <div class="text-xs text-gray-400 mt-1">
+                Total jenis produk terdaftar
+            </div>
+        </div>
+
+        <!-- Total Gudang -->
+        <div class="p-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Gudang</span>
+                <span class="p-1.5 bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400 rounded-lg">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </span>
+            </div>
+            <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-2 font-mono">
+                {{ number_format($totalGudang, 0, ',', '.') }}
+            </div>
+            <div class="text-xs text-gray-400 mt-1">
+                Lokasi gudang penyimpanan aktif
+            </div>
+        </div>
+
+        <!-- Total Pelanggan -->
+        <div class="p-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Pelanggan</span>
+                <span class="p-1.5 bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400 rounded-lg">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </span>
+            </div>
+            <div class="text-2xl font-black text-purple-600 dark:text-purple-400 mt-2 font-mono">
+                {{ number_format($totalPelanggan, 0, ',', '.') }}
+            </div>
+            <div class="text-xs text-gray-400 mt-1">
+                Mitra & toko pelanggan terdaftar
+            </div>
+        </div>
+
         <!-- Penjualan Hari Ini -->
         <div class="p-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700">
             <div class="flex items-center justify-between">
@@ -60,61 +114,7 @@
                 Rp {{ number_format($penjualanHariIni, 0, ',', '.') }}
             </div>
             <div class="text-xs text-gray-400 mt-1">
-                <span id="statPenjualanCount" class="font-semibold text-gray-600 dark:text-gray-300">{{ $penjualanHariIniCount }}</span> transaksi kasir selesai
-            </div>
-        </div>
-
-        <!-- Total Aktivitas Hari Ini -->
-        <div class="p-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700">
-            <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Transaksi Hari Ini</span>
-                <span class="p-1.5 bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 rounded-lg">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                </span>
-            </div>
-            <div class="text-2xl font-black text-gray-900 dark:text-white mt-2 font-mono" id="statTotalTrx">
-                {{ $transaksiHariIniCount }}
-            </div>
-            <div class="text-xs text-gray-400 mt-1">
-                Total aktivitas keluar & masuk
-            </div>
-        </div>
-
-        <!-- Barang Masuk Hari Ini -->
-        <div class="p-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700">
-            <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Penerimaan Masuk</span>
-                <span class="p-1.5 bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400 rounded-lg">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                    </svg>
-                </span>
-            </div>
-            <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-2 font-mono" id="statMasukCount">
-                {{ $masukHariIniCount }}
-            </div>
-            <div class="text-xs text-gray-400 mt-1">
-                Restock barang hari ini
-            </div>
-        </div>
-
-        <!-- Transfer Antar Gudang Hari Ini -->
-        <div class="p-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700">
-            <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Transfer Antar Gudang</span>
-                <span class="p-1.5 bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400 rounded-lg">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                    </svg>
-                </span>
-            </div>
-            <div class="text-2xl font-black text-purple-600 dark:text-purple-400 mt-2 font-mono" id="statTransferCount">
-                {{ $transferHariIniCount }}
-            </div>
-            <div class="text-xs text-gray-400 mt-1">
-                Perpindahan stok hari ini
+                <span id="statPenjualanCount" class="font-semibold text-gray-600 dark:text-gray-300">{{ $penjualanHariIniCount }}</span> transaksi selesai
             </div>
         </div>
     </div>
@@ -148,7 +148,92 @@
         </div>
     </div>
 
-    <!-- 4. Tabel Aktivitas Transaksi Hari Ini (Live Stream) -->
+    <!-- 4. Panel Barang dengan Stok Terendah -->
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700 overflow-hidden">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <span class="p-1 bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-400 rounded-md">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </span>
+                    <span>Barang dengan Stok Terendah</span>
+                </h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    Daftar produk dengan persediaan paling kritis &bull; Fokus: <strong class="text-gray-700 dark:text-gray-300">{{ $selectedGudangName }}</strong>
+                </p>
+            </div>
+            <div>
+                <a href="{{ route('transaksi.masuk') }}" 
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition">
+                    + Restock Masuk
+                </a>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left text-gray-500 dark:text-gray-400">
+                <thead class="bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-gray-300 uppercase text-[11px] border-b border-gray-200 dark:border-gray-700">
+                    <tr>
+                        <th scope="col" class="px-4 py-3 whitespace-nowrap">No</th>
+                        <th scope="col" class="px-4 py-3 whitespace-nowrap">SKU</th>
+                        <th scope="col" class="px-4 py-3">Nama Barang</th>
+                        <th scope="col" class="px-4 py-3 whitespace-nowrap">Kategori</th>
+                        <th scope="col" class="px-4 py-3 text-right whitespace-nowrap">Sisa Stok</th>
+                        <th scope="col" class="px-4 py-3 text-center whitespace-nowrap">Status</th>
+                        <th scope="col" class="px-4 py-3 text-center whitespace-nowrap">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700 font-sans">
+                    @forelse($barangStokTerendah as $idx => $b)
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                            <td class="px-4 py-2.5 font-mono text-gray-500">{{ $idx + 1 }}</td>
+                            <td class="px-4 py-2.5 font-mono font-bold text-gray-900 dark:text-white">{{ $b->sku }}</td>
+                            <td class="px-4 py-2.5 font-medium text-gray-900 dark:text-white">{{ $b->nama_barang }}</td>
+                            <td class="px-4 py-2.5 text-gray-600 dark:text-gray-300">{{ $b->kategori }}</td>
+                            <td class="px-4 py-2.5 text-right font-mono font-bold whitespace-nowrap {{ $b->stok <= 5 ? 'text-red-600 dark:text-red-400' : ($b->stok <= 15 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400') }}">
+                                {{ number_format($b->stok, 0, ',', '.') }} {{ $b->satuan }}
+                            </td>
+                            <td class="px-4 py-2.5 text-center whitespace-nowrap">
+                                @if($b->stok <= 0)
+                                    <span class="px-2 py-0.5 text-[10px] font-bold text-red-700 bg-red-100 dark:bg-red-950/50 dark:text-red-300 rounded">
+                                        Habis
+                                    </span>
+                                @elseif($b->stok <= 5)
+                                    <span class="px-2 py-0.5 text-[10px] font-bold text-red-700 bg-red-100 dark:bg-red-950/50 dark:text-red-300 rounded">
+                                        Kritis
+                                    </span>
+                                @elseif($b->stok <= 15)
+                                    <span class="px-2 py-0.5 text-[10px] font-bold text-amber-700 bg-amber-100 dark:bg-amber-950/50 dark:text-amber-300 rounded">
+                                        Menipis
+                                    </span>
+                                @else
+                                    <span class="px-2 py-0.5 text-[10px] font-bold text-emerald-700 bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-300 rounded">
+                                        Aman
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-2.5 text-center whitespace-nowrap">
+                                <a href="{{ route('transaksi.masuk') }}" 
+                                   class="inline-flex items-center text-[11px] font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:underline">
+                                    + Restock
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-4 py-6 text-center text-gray-400">
+                                Belum ada data stok barang.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 5. Tabel Aktivitas Transaksi Hari Ini (Live Stream) -->
     <div class="bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700 overflow-hidden">
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
@@ -225,17 +310,6 @@
                     @empty
                     <tr id="emptyRow">
                         <td colspan="7" class="px-4 py-8 text-center text-gray-400">
-                            <div class="flex flex-col items-center justify-center space-y-1">
-                                <svg class="w-8 h-8 text-gray-300 dark:text-gray-600 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <p class="text-sm font-semibold text-gray-600 dark:text-gray-400">
-                                    Belum ada transaksi pada hari ini ({{ date('d/m/Y') }}) untuk {{ $selectedGudangName }}.
-                                </p>
-                                <p class="text-xs text-gray-400">
-                                    Transaksi kasir atau mutasi stok yang terjadi hari ini akan langsung muncul di sini secara real-time.
-                                </p>
-                            </div>
                         </td>
                     </tr>
                     @endforelse

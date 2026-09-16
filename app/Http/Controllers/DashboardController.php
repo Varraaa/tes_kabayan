@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use App\Models\Gudang;
 use App\Models\Pelanggan;
+use App\Models\RiwayatStok;
 use App\Models\Transaksi;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -50,6 +51,30 @@ class DashboardController extends Controller
         $masukHariIniCount     = (clone $baseHariIni)->where('jenis', 'masuk')->where('status', 'selesai')->count();
         $transferHariIniCount  = (clone $baseHariIni)->where('jenis', 'transfer')->where('status', 'selesai')->count();
 
+        // 3. Barang dengan Stok Terendah
+        $subQuery = RiwayatStok::selectRaw('MAX(id) as max_id')
+            ->groupBy('gudang_id', 'barang_id');
+        if ($selectedGudangId) {
+            $subQuery->where('gudang_id', $selectedGudangId);
+        }
+        $latestIds = $subQuery->pluck('max_id');
+
+        $latestStocks = RiwayatStok::whereIn('id', $latestIds)
+            ->selectRaw('barang_id, SUM(sisa_stok) as total_sisa_stok')
+            ->groupBy('barang_id')
+            ->pluck('total_sisa_stok', 'barang_id');
+
+        $barangStokTerendah = Barang::where('status_aktif', 1)->get()->map(function ($b) use ($latestStocks) {
+            return (object) [
+                'id'          => $b->id,
+                'sku'         => $b->sku,
+                'nama_barang' => $b->nama_barang,
+                'kategori'    => $b->kategori,
+                'satuan'      => $b->satuan,
+                'stok'        => (int) ($latestStocks[$b->id] ?? 0),
+            ];
+        })->sortBy('stok')->values()->take(8);
+
         // Riwayat Transaksi Hari Ini (Terbaru hari ini)
         $transaksiTerbaru = (clone $baseHariIni)
             ->with(['user', 'pelanggan', 'gudangAsal', 'gudangTujuan', 'details.barang'])
@@ -66,6 +91,7 @@ class DashboardController extends Controller
             'penjualanHariIniCount' => $penjualanHariIniCount,
             'masukHariIniCount'     => $masukHariIniCount,
             'transferHariIniCount'  => $transferHariIniCount,
+            'barangStokTerendah'    => $barangStokTerendah,
             'transaksiTerbaru'      => $transaksiTerbaru,
         ];
     }

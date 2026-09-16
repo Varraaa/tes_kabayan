@@ -175,7 +175,7 @@
                         <label class="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
                             Uang Diterima (Rp):
                         </label>
-                        <input type="number" id="uangDiterima" name="nominal_bayar" min="0" placeholder="Ketik nominal uang yang dibayar..." oninput="hitungKembalian()"
+                        <input type="number" id="uangDiterima" name="nominal_bayar" min="0" placeholder="Ketik nominal uang" oninput="hitungKembalian()"
                                class="bg-gray-50 border border-gray-300 text-gray-900 text-base font-mono font-bold rounded-lg block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     </div>
 
