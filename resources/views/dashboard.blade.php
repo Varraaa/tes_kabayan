@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Dashboard Real-Time')
-@section('header', 'Dashboard Operasional Real-Time')
+@section('header', 'Dashboard Operasional')
 
 @section('content')
 <div class="space-y-6">
@@ -153,12 +153,7 @@
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <span class="p-1 bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-400 rounded-md">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                    </span>
-                    <span>Barang dengan Stok Terendah</span>
+                    <span>Jumlah Stok Barang</span>
                 </h3>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                     Daftar produk dengan persediaan paling kritis &bull; Fokus: <strong class="text-gray-700 dark:text-gray-300">{{ $selectedGudangName }}</strong>
@@ -241,7 +236,7 @@
                     <span>Aktivitas Transaksi Hari Ini</span>
                 </h3>
                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                    Khusus transaksi tanggal {{ date('d/m/Y') }} &bull; Data diperbarui otomatis
+                    Khusus transaksi tanggal {{ date('d/m/Y') }}
                 </p>
             </div>
             <div class="text-xs text-gray-500 dark:text-gray-400">
@@ -290,7 +285,13 @@
                             @endif
                         </td>
                         <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
-                            {{ $trx->pelanggan->nama ?? ($trx->user->name ?? '-') }}
+                            @if($trx->jenis === 'jual')
+                                <span class="font-medium text-gray-900 dark:text-white">{{ $trx->pelanggan->nama ?? 'Pelanggan Umum' }}</span>
+                            @elseif($trx->jenis === 'masuk')
+                                <span class="text-gray-600 dark:text-gray-300">{{ $trx->user->name ?? 'Penerimaan Internal' }}</span>
+                            @else
+                                <span class="text-gray-500 dark:text-gray-400">Internal (Transfer)</span>
+                            @endif
                         </td>
                         <td class="px-4 py-3 text-right font-mono font-bold text-gray-900 dark:text-white whitespace-nowrap">
                             @if($trx->total_bayar > 0)

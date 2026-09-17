@@ -107,7 +107,13 @@
 
                             {{-- Pihak Terkait --}}
                             <td class="px-4 py-3">
-                                {{ $t->pelanggan->nama ?? ($t->user->name ?? '-') }}
+                                @if ($t->jenis === 'jual')
+                                    <span class="font-medium text-gray-900 dark:text-white">{{ $t->pelanggan->nama ?? 'Pelanggan Umum' }}</span>
+                                @elseif($t->jenis === 'masuk')
+                                    <span class="text-gray-600 dark:text-gray-300">{{ $t->user->name ?? 'Penerimaan Internal' }}</span>
+                                @else
+                                    <span class="text-gray-500 dark:text-gray-400">Internal (Transfer)</span>
+                                @endif
                             </td>
 
                             {{-- Total Nominal (Dengan fallback kalkulasi dari details) --}}
@@ -218,7 +224,13 @@
                                                         <span class="text-gray-500 dark:text-gray-400">Pihak /
                                                             Mitra:</span>
                                                         <p class="font-bold text-gray-900 dark:text-white">
-                                                            {{ $t->pelanggan->nama ?? ($t->user->name ?? 'Internal Perusahaan') }}
+                                                            @if ($t->jenis === 'jual')
+                                                                {{ $t->pelanggan->nama ?? 'Pelanggan Umum' }}
+                                                            @elseif($t->jenis === 'masuk')
+                                                                {{ $t->user->name ?? 'Penerimaan Internal' }}
+                                                            @else
+                                                                Transfer Antar-Gudang
+                                                            @endif
                                                         </p>
                                                     </div>
                                                     <div>

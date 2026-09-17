@@ -1,4 +1,4 @@
-# PT Sinar Abadi - Sistem Inventaris Multi-Gudang & Kasir (Point of Sale)
+# PT Sinar Nusantara - Sistem Inventaris Multi-Gudang & Kasir (Point of Sale)
 
 Aplikasi web komprehensif berbasis **Laravel** dan **Tailwind CSS / Flowbite** yang dirancang untuk mengelola rantai pasokan dan persediaan barang di banyak lokasi gudang (*multi-warehouse inventory*), kasir penjualan multi-produk, mutasi transfer stok antar-gudang, pembatalan transaksi dengan mekanisme rollback stok otomatis, hingga laporan analitik terpadu yang dapat diekspor ke CSV.
 

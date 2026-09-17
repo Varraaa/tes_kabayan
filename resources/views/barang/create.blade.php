@@ -53,21 +53,33 @@
                 </div>
 
                 <div>
-                    <label for="harga_pokok" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Harga
-                        Pokok / Modal (Rp)</label>
-                    <input type="number" step="0.01" name="harga_pokok" id="harga_pokok"
-                        value="{{ old('harga_pokok') }}" required
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        placeholder="0">
+                    <label for="harga_pokok" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Harga Pokok / Modal (Rp)
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-gray-500 dark:text-gray-400 font-semibold text-sm">
+                            Rp
+                        </div>
+                        <input type="text" name="harga_pokok" id="harga_pokok"
+                            value="{{ old('harga_pokok') ? number_format((float)preg_replace('/[^0-9]/', '', old('harga_pokok')), 0, ',', '.') : '' }}" required
+                            class="format-rupiah bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-11 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono"
+                            placeholder="Contoh: 60.000" autocomplete="off">
+                    </div>
                 </div>
 
                 <div>
-                    <label for="harga_jual" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Harga Jual
-                        (Rp)</label>
-                    <input type="number" step="0.01" name="harga_jual" id="harga_jual" value="{{ old('harga_jual') }}"
-                        required
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        placeholder="0">
+                    <label for="harga_jual" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Harga Jual (Rp)
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-gray-500 dark:text-gray-400 font-semibold text-sm">
+                            Rp
+                        </div>
+                        <input type="text" name="harga_jual" id="harga_jual"
+                            value="{{ old('harga_jual') ? number_format((float)preg_replace('/[^0-9]/', '', old('harga_jual')), 0, ',', '.') : '' }}" required
+                            class="format-rupiah bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-11 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono"
+                            placeholder="Contoh: 75.000" autocomplete="off">
+                    </div>
                 </div>
 
                 <div>
@@ -94,4 +106,24 @@
             </div>
         </form>
     </div>
+
+    <script>
+        function formatRupiahInput(input) {
+            let clean = input.value.replace(/[^0-9]/g, '');
+            if (clean) {
+                input.value = parseInt(clean, 10).toLocaleString('id-ID');
+            } else {
+                input.value = '';
+            }
+        }
+
+        document.querySelectorAll('.format-rupiah').forEach(el => {
+            el.addEventListener('input', function() {
+                formatRupiahInput(this);
+            });
+            if (el.value) {
+                formatRupiahInput(el);
+            }
+        });
+    </script>
 @endsection

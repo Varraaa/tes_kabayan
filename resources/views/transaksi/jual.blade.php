@@ -173,10 +173,13 @@
                     <!-- Input Pembayaran Manual -->
                     <div>
                         <label class="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                            Uang Diterima (Rp):
+                            Uang Diterima (Rp): <span class="text-red-500">*</span>
                         </label>
-                        <input type="number" id="uangDiterima" name="nominal_bayar" min="0" placeholder="Ketik nominal uang" oninput="hitungKembalian()"
-                               class="bg-gray-50 border border-gray-300 text-gray-900 text-base font-mono font-bold rounded-lg block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <input type="number" id="uangDiterima" name="nominal_bayar" min="0" placeholder="Ketik nominal uang..." oninput="hitungKembalian()" required
+                               class="bg-gray-50 border border-gray-300 text-gray-900 text-base font-mono font-bold rounded-lg block w-full p-3 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <span id="uangDiterimaHint" class="text-[11px] text-amber-600 dark:text-amber-400 mt-1 block font-medium">
+                            Wajib isi nominal uang diterima terlebih dahulu
+                        </span>
                     </div>
 
                     <!-- Hasil Kembalian Otomatis -->
@@ -186,8 +189,8 @@
                         <input type="hidden" name="kembalian" id="kembalianRaw" value="0">
                     </div>
 
-                    <button type="submit" id="btnSubmit"
-                            class="w-full text-white bg-emerald-600 hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-300 font-bold rounded-lg text-sm px-5 py-3 shadow-lg transition flex items-center justify-center gap-2">
+                    <button type="submit" id="btnSubmit" disabled
+                            class="w-full text-white bg-emerald-600 hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-300 font-bold rounded-lg text-sm px-5 py-3 shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:shadow-none">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
@@ -304,15 +307,50 @@
             hitungKembalian();
         }
 
+        function updateSubmitButtonState() {
+            const btnSubmit = document.getElementById('btnSubmit');
+            const uangInput = document.getElementById('uangDiterima');
+            const uangRawVal = uangInput ? uangInput.value.trim() : '';
+            const uangVal = parseFloat(uangRawVal || 0);
+            const hintEl = document.getElementById('uangDiterimaHint');
+
+            const isFilled = uangRawVal !== '';
+            const isSufficient = isFilled && uangVal >= currentGrandTotal && currentGrandTotal > 0;
+
+            if (isSufficient) {
+                btnSubmit.disabled = false;
+                if (hintEl) {
+                    hintEl.innerText = '✓ Pembayaran cukup, transaksi siap diselesaikan.';
+                    hintEl.className = 'text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 block font-medium';
+                }
+            } else {
+                btnSubmit.disabled = true;
+                if (hintEl) {
+                    if (!isFilled) {
+                        hintEl.innerText = 'Wajib isi nominal uang';
+                        hintEl.className = 'text-[11px] text-amber-600 dark:text-amber-400 mt-1 block font-medium';
+                    } else if (currentGrandTotal <= 0) {
+                        hintEl.innerText = '* Pilih barang belanjaan terlebih dahulu';
+                        hintEl.className = 'text-[11px] text-gray-500 dark:text-gray-400 mt-1 block font-medium';
+                    } else {
+                        hintEl.innerText = `* Uang diterima kurang Rp ${(currentGrandTotal - uangVal).toLocaleString('id-ID')}`;
+                        hintEl.className = 'text-[11px] text-red-600 dark:text-red-400 mt-1 block font-medium';
+                    }
+                }
+            }
+        }
+
         function hitungKembalian() {
-            const uangVal = parseFloat(document.getElementById('uangDiterima').value || 0);
+            const uangInput = document.getElementById('uangDiterima');
+            const uangVal = parseFloat(uangInput.value || 0);
             const kembalianEl = document.getElementById('kembalianText');
             const kembalianRaw = document.getElementById('kembalianRaw');
 
-            if (uangVal === 0 && currentGrandTotal > 0) {
+            if ((uangInput.value.trim() === '' || uangVal === 0) && currentGrandTotal > 0) {
                 kembalianEl.innerText = 'Rp 0';
                 kembalianEl.className = 'text-base font-bold font-mono text-gray-500';
                 kembalianRaw.value = 0;
+                updateSubmitButtonState();
                 return;
             }
 
@@ -326,6 +364,8 @@
                 kembalianEl.innerText = 'Kurang Rp ' + Math.abs(selisih).toLocaleString('id-ID');
                 kembalianEl.className = 'text-base font-bold font-mono text-red-600 dark:text-red-400';
             }
+
+            updateSubmitButtonState();
         }
 
         function tambahBaris() {
@@ -372,6 +412,20 @@
                 return false;
             }
 
+            const uangInput = document.getElementById('uangDiterima');
+            if (!uangInput || !uangInput.value || uangInput.value.trim() === '') {
+                alert('Bagian Uang Diterima wajib diisi terlebih dahulu sebelum menyimpan dan menyelesaikan transaksi.');
+                if (uangInput) uangInput.focus();
+                return false;
+            }
+
+            const uangVal = parseFloat(uangInput.value || 0);
+            if (uangVal < currentGrandTotal) {
+                alert(`Uang diterima (Rp ${uangVal.toLocaleString('id-ID')}) belum mencukupi total tagihan (Rp ${currentGrandTotal.toLocaleString('id-ID')}).`);
+                uangInput.focus();
+                return false;
+            }
+
             let valid = true;
             document.querySelectorAll('.item-row').forEach(row => {
                 const selectEl = row.querySelector('.barang-select');
@@ -399,6 +453,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             fetchRealtimeStock();
+            updateSubmitButtonState();
         });
     </script>
 @endsection

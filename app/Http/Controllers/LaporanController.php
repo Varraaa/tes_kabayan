@@ -11,12 +11,12 @@ use App\Models\TransaksiDetail;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse; 
 
 class LaporanController extends Controller
 {
     /**
-     * Halaman Utama Laporan Terpadu (Laporan Stok, Laporan Barang Masuk, Laporan Penjualan)
+     * Halaman Utama Laporan (Laporan Stok, Laporan Barang Masuk, Laporan Penjualan)
      */
     public function index(Request $request)
     {
@@ -152,7 +152,8 @@ class LaporanController extends Controller
         $query = Transaksi::with(['gudangTujuan', 'details.barang', 'user'])
             ->where('jenis', 'masuk')
             ->where('status', 'selesai')
-            ->latest('tanggal');
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('id', 'desc');
 
         if ($request->filled('gudang_id')) {
             $query->where('gudang_tujuan_id', $request->gudang_id);
@@ -213,7 +214,8 @@ class LaporanController extends Controller
     {
         $query = Transaksi::with(['gudangAsal', 'pelanggan', 'details.barang', 'user'])
             ->where('jenis', 'jual')
-            ->latest('tanggal');
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('id', 'desc');
 
         if ($request->filled('gudang_id')) {
             $query->where('gudang_asal_id', $request->gudang_id);
@@ -325,7 +327,8 @@ class LaporanController extends Controller
         $query = Transaksi::with(['gudangTujuan', 'details.barang', 'user'])
             ->where('jenis', 'masuk')
             ->where('status', 'selesai')
-            ->latest('tanggal');
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('id', 'desc');
 
         if ($request->filled('gudang_id')) {
             $query->where('gudang_tujuan_id', $request->gudang_id);
@@ -383,7 +386,8 @@ class LaporanController extends Controller
     {
         $query = Transaksi::with(['gudangAsal', 'pelanggan', 'details.barang', 'user'])
             ->where('jenis', 'jual')
-            ->latest('tanggal');
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('id', 'desc');
 
         if ($request->filled('gudang_id')) {
             $query->where('gudang_asal_id', $request->gudang_id);

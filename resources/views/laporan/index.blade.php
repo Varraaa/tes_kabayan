@@ -14,6 +14,7 @@
                 Pusat analisis persediaan stok gudang, penerimaan barang masuk, dan laporan penjualan.
             </p>
         </div>
+        <!-- implementasi export cvs -->
         <div class="flex items-center gap-2 print:hidden">
             <a href="{{ route('laporan.export', array_merge(request()->query(), ['tab' => $tab])) }}"
                class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm transition">

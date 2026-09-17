@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Sistem Gudang & Kasir') - PT Sinar Abadi</title>
+    <title>@yield('title', 'Sistem Gudang & Kasir') - PT Sinar Nusantara</title>
     @vite('resources/css/app.css')
 
     <!-- Tailwind CSS CDN -->
@@ -42,7 +42,7 @@
                         </svg>
                         <span
                             class="self-center text-lg font-bold sm:text-xl whitespace-nowrap text-gray-900 dark:text-white">PT
-                            Sinar Abadi</span>
+                            Sinar Nusantara</span>
                     </a>
                 </div>
 

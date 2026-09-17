@@ -20,6 +20,15 @@ class BarangController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->has('harga_pokok')) {
+            $cleanPokok = preg_replace('/[^0-9]/', '', (string)$request->harga_pokok);
+            $request->merge(['harga_pokok' => $cleanPokok === '' ? null : (float)$cleanPokok]);
+        }
+        if ($request->has('harga_jual')) {
+            $cleanJual = preg_replace('/[^0-9]/', '', (string)$request->harga_jual);
+            $request->merge(['harga_jual' => $cleanJual === '' ? null : (float)$cleanJual]);
+        }
+
         $validated = $request->validate([
             'sku'          => 'required|string|unique:barang,sku|max:50',
             'nama_barang'  => 'required|string|max:255',
@@ -41,6 +50,15 @@ class BarangController extends Controller
 
     public function update(Request $request, Barang $barang)
     {
+        if ($request->has('harga_pokok')) {
+            $cleanPokok = preg_replace('/[^0-9]/', '', (string)$request->harga_pokok);
+            $request->merge(['harga_pokok' => $cleanPokok === '' ? null : (float)$cleanPokok]);
+        }
+        if ($request->has('harga_jual')) {
+            $cleanJual = preg_replace('/[^0-9]/', '', (string)$request->harga_jual);
+            $request->merge(['harga_jual' => $cleanJual === '' ? null : (float)$cleanJual]);
+        }
+
         $validated = $request->validate([
             'sku'          => 'required|string|max:50|unique:barang,sku,' . $barang->id,
             'nama_barang'  => 'required|string|max:255',

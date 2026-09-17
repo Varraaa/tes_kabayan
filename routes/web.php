@@ -56,3 +56,5 @@ Route::middleware('auth')->group(function () {
         })->name('laporan.stok');
     });
 });
+
+

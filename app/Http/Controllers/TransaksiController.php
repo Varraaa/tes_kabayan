@@ -85,7 +85,7 @@ class TransaksiController extends Controller
             'items.*.barang_id' => 'required|exists:barang,id',
             'items.*.jumlah'    => 'required|integer|min:1',
             'items.*.harga'     => 'nullable|numeric|min:0',
-            'nominal_bayar'     => 'nullable|numeric|min:0',
+            'nominal_bayar'     => 'required|numeric|min:0',
             'kembalian'         => 'nullable|numeric',
         ]);
 

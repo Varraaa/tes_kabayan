@@ -136,13 +136,22 @@ class DashboardController extends Controller
                 $gudangInfo = ($trx->gudangAsal->nama_gudang ?? '-') . ' → ' . ($trx->gudangTujuan->nama_gudang ?? '-');
             }
 
+            $pihak = '-';
+            if ($trx->jenis === 'jual') {
+                $pihak = $trx->pelanggan->nama ?? 'Pelanggan Umum';
+            } elseif ($trx->jenis === 'masuk') {
+                $pihak = $trx->user->name ?? 'Penerimaan Internal';
+            } else {
+                $pihak = 'Internal (Transfer)';
+            }
+
             return [
                 'id'                    => $trx->id,
                 'no_referensi'          => $trx->no_referensi,
                 'jam'                   => $trx->created_at ? $trx->created_at->format('H:i:s') : date('H:i:s', strtotime($trx->tanggal)),
                 'jenis'                 => $trx->jenis,
                 'gudang_info'           => $gudangInfo,
-                'pihak'                 => $trx->pelanggan->nama ?? ($trx->user->name ?? '-'),
+                'pihak'                 => $pihak,
                 'total_bayar'           => (float) $trx->total_bayar,
                 'total_bayar_formatted' => $trx->total_bayar > 0 ? 'Rp ' . number_format($trx->total_bayar, 0, ',', '.') : '-',
                 'status'                => $trx->status,
